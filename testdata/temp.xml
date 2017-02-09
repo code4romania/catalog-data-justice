@@ -1,0 +1,856 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AggregatesAndRules>
+	<Aggregates>
+		<NAME><![CDATA[@AccountType]]></NAME>
+		<DESCRIPTION><![CDATA[ ]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[SET @AccountType = 'DUMMY']]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>VARCHAR(20)</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@AML_HIGH_RISK_CNTRY_ACCT]]></NAME>
+		<DESCRIPTION><![CDATA[High risk ccountries as identified for AML purposes ]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[IF (@SD_BEN_WIR_CNTRY_CDE in ('IR','KP','SS','SD','SY','IL','IQ','PS','YE','CU','CO','LB','AF','AL','AD','AG','AW','AT','BS','AE','BB','BY','BM','BA','BI','KY','CF','CD','CI','CY','DM','DO','ER','ET','GA','GG','GN','GW','GY','HK','IE','IM','JE','LA','LR','LY','LI','LU','MT','MH','MU','MC','ME','MM','NG','PA','PG','RU','SO','CH','TC','UG','UA','VI','UY','VE','VG','ZM','ZW'))  SET @AML_HIGH_RISK_CNTRY_ACCT='1' ELSE  SET @AML_HIGH_RISK_CNTRY_ACCT='0']]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@SD_BEN_WIR_CNTRY_CDE IS NOT NULL]]></ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>BIT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@CARD_NON_KSA]]></NAME>
+		<DESCRIPTION><![CDATA[ ]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>4</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[SET @CARD_NON_KSA = 1]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>BIT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@CustomerGroup]]></NAME>
+		<DESCRIPTION><![CDATA[ ]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[DECLARE @TempCustomerType VARCHAR(8) SELECT @TempCustomerType=SM_ACCT_CAT_CDE FROM UAN_MASTER WHERE SM_UAN=@SD_UAN  IF @TempCustomerType in ('AC', 'AD', 'BB', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BK', 'BL', 'BR', 'CB', 'CC', 'CD', 'CE', 'CF', 'CG', 'CH', 'CI', 'CK', 'CM', 'CQ', 'FA', 'GA', 'GB')  SET @CustomerGroup='CORP' ELSE IF @TempCustomerType in ('EA', 'EB', 'EC', 'EJ', 'EX', 'E1', 'E2', 'E3')  SET @CustomerGroup='INDIV' ELSE IF @TempCustomerType in ('CA')  SET @CustomerGroup='SOLPR' ELSE  SET @CustomerGroup='NONE']]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>VARCHAR(64)</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@CustomerType]]></NAME>
+		<DESCRIPTION><![CDATA[Customer type, as in EQN]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[SELECT @CustomerType=SM_ACCT_CAT_CDE FROM UAN_MASTER WHERE SM_UAN=@SD_UAN]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>VARCHAR(8)</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@hasGamblingNotifAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @hasGamblingNotifAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@hasGamblingNotifCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @hasGamblingNotifCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@hasGamblingNotifEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @hasGamblingNotifEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@hasGamblingNotifUAID]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAID have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>6</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @hasGamblingNotifUAID = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@hasGamblingNotifUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @hasGamblingNotifUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingAtLocAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingAtLocAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) left outer join travel_locations tl WITH(NOLOCK) on tn.TRAVEL_ID = tl.TRAVEL_ID where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date        and (tl.country_code is null or (tl.country_code = @SD_TERM_CNTRY and tl.region_code is null) or (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code is null) or        (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code = @SD_TERM_CITY)))then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingAtLocCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active travel notification at given location?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingAtLocCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) left outer join travel_locations tl WITH(NOLOCK) on tn.TRAVEL_ID = tl.TRAVEL_ID where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date        and (tl.country_code is null or (tl.country_code = @SD_TERM_CNTRY and tl.region_code is null) or (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code is null) or        (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code = @SD_TERM_CITY)))then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingAtLocEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingAtLocEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) left outer join travel_locations tl WITH(NOLOCK) on tn.TRAVEL_ID = tl.TRAVEL_ID where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date        and (tl.country_code is null or (tl.country_code = @SD_TERM_CNTRY and tl.region_code is null) or (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code is null) or        (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code = @SD_TERM_CITY)))then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingAtLocUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active travel notification at given location?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingAtLocUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) left outer join travel_locations tl WITH(NOLOCK) on tn.TRAVEL_ID = tl.TRAVEL_ID where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date        and (tl.country_code is null or (tl.country_code = @SD_TERM_CNTRY and tl.region_code is null) or (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code is null) or        (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code = @SD_TERM_CITY)))then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingUAID]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAID have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>6</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingUAID = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@isTravellingUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @isTravellingUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_hasGamblingNotifAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_hasGamblingNotifAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_hasGamblingNotifCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_hasGamblingNotifCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_hasGamblingNotifEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_hasGamblingNotifEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_hasGamblingNotifUAID]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAID have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>6</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_hasGamblingNotifUAID = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_hasGamblingNotifUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active gambling travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_hasGamblingNotifUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.notification_type = 'GAM')         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingAtLocAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingAtLocAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) left outer join travel_locations tl WITH(NOLOCK) on tn.TRAVEL_ID = tl.TRAVEL_ID where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date        and (tl.country_code is null or (tl.country_code = @SD_TERM_CNTRY and tl.region_code is null) or (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code is null) or        (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code = @SD_TERM_CITY)))then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingAtLocCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active travel notification at given location?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingAtLocCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) left outer join travel_locations tl WITH(NOLOCK) on tn.TRAVEL_ID = tl.TRAVEL_ID where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date        and (tl.country_code is null or (tl.country_code = @SD_TERM_CNTRY and tl.region_code is null) or (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code is null) or        (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code = @SD_TERM_CITY)))then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingAtLocEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingAtLocEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) left outer join travel_locations tl WITH(NOLOCK) on tn.TRAVEL_ID = tl.TRAVEL_ID where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date        and (tl.country_code is null or (tl.country_code = @SD_TERM_CNTRY and tl.region_code is null) or (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code is null) or        (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code = @SD_TERM_CITY)))then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingAtLocUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active travel notification at given location?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingAtLocUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) left outer join travel_locations tl WITH(NOLOCK) on tn.TRAVEL_ID = tl.TRAVEL_ID where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date        and (tl.country_code is null or (tl.country_code = @SD_TERM_CNTRY and tl.region_code is null) or (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code is null) or        (tl.country_code = @SD_TERM_CNTRY and tl.region_code = @SD_TERM_ST and tl.other_code = @SD_TERM_CITY)))then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingUAID]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAID have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>6</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingUAID = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_isTravellingUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active travel notification?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_isTravellingUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date) then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelAboveValueLimitAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelAboveValueLimitAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelAboveValueLimitCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelAboveValueLimitCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelAboveValueLimitEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelAboveValueLimitEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelAboveValueLimitUAID]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAID have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>6</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelAboveValueLimitUAID = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelAboveValueLimitUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelAboveValueLimitUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelInValueLimitAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelInValueLimitAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelInValueLimitCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelInValueLimitCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelInValueLimitEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelInValueLimitEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelInValueLimitUAID]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAID have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>6</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelInValueLimitUAID = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@rt_travelInValueLimitUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>7</RULEDEFID>
+		<SUBTYPEID>2</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @rt_travelInValueLimitUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelAboveValueLimitAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelAboveValueLimitAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelAboveValueLimitCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelAboveValueLimitCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelAboveValueLimitEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelAboveValueLimitEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelAboveValueLimitUAID]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAID have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>6</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelAboveValueLimitUAID = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelAboveValueLimitUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active travel notification with announced limit above the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelAboveValueLimitUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt < @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelInValueLimitAct]]></NAME>
+		<DESCRIPTION><![CDATA[Does this ACCOUNT have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelInValueLimitAct = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelInValueLimitCard]]></NAME>
+		<DESCRIPTION><![CDATA[Does this card have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>1</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelInValueLimitCard = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelInValueLimitEmpl]]></NAME>
+		<DESCRIPTION><![CDATA[Does this EMPLOYEE have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>5</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelInValueLimitEmpl = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelInValueLimitUAID]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAID have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>6</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelInValueLimitUAID = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Aggregates>
+		<NAME><![CDATA[@travelInValueLimitUAN]]></NAME>
+		<DESCRIPTION><![CDATA[Does this UAN have an active travel notification with announced limit below the current transaction amount ?]]></DESCRIPTION>
+		<RULEDEFID>4</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>3</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[set @travelInValueLimitUAN = (select case when exists (select 1 from travel_notifications tn WITH(NOLOCK) where tn.action_level_id=@ACTION_LEVEL_ID and tn.action_level_key=@ACTION_LEVEL_KEY and @DD_DATE between tn.travel_start_date and tn.travel_end_date and tn.expected_max_spend_amt > @MD_TRAN_AMT1)         then 1 else 0 end)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[]]>
+		</ENTRANCE_CRITERIA>
+		<AGGREGATE_TYPE>INT</AGGREGATE_TYPE>
+	</Aggregates>
+	<Rules>
+		<NAME><![CDATA[6 Months total credit transactions  for  SOLPR]]></NAME>
+		<DESCRIPTION><![CDATA[Cumulative credit transactions (including Internet /ATM/POS) more than 1,000,000 for new sole proprietor  For first 6 months of account opening date     ]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CREDITS_MNTH WHERE PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + @MD_TRAN_AMT1 >=1000000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'SOLEPR' AND @SD_CR_DB_IND = 'C' AND @SD_TRAN_CDE_CAT in ('153', '520', '156', '557', '505', '585', '510', '587', '515', '653', '516', '656', '519', '950') AND @DM_ACCT_OPN_DAT<DATEADD(MONTH, -6, GETDATE())]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Blocked Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[More than (SR 5,000) total deposits /credit transaction for a frozen/inactive/dormant account in last 7 days. (1) Blocked accounts are Frozen accounts (2) Inactive accounts are dormant accounts. SAIB has custom processing that allows movements to happen for above accounts based on controlled criteria]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CREDITS_ALL WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >=5000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>0 AND @CustomerGroup = 'INDIV' AND @SD_CR_DB_IND = 'C' AND @SD_TRAN_CDE_CAT in ('153', '520', '156', '557', '505', '585', '510', '587', '515', '653', '516', '656', '519', '950') AND @SM_ACCT_STAT in ('INAC', 'BLOC')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Cash Transactions  For  Sole Proprietor Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[Cumulative cash deposits transactions more than (SR 199,999) to sole proprietor in last 7 days]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CASH_DEPOSITS WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >200000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>0 AND @SM_ACCT_BHVR_SCORE IN ('HIR', 'PEP', 'REP') AND @CustomerGroup = 'SOLPR' AND @SM_ACCT_PROD_CAT in ('CA', 'CD') AND @SD_TRAN_CDE_CAT in ('587', '950') AND @SD_MSG_SRC in ('ATM', 'BRN')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Cash Transactions  For corporate Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[Cumulative cash deposits transactions more than (SR 499,999) to corporate accounts in last 7 days]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CASH_DEPOSITS WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >500000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>0 AND @SM_ACCT_BHVR_SCORE IN ('HIR', 'PEP', 'REP') AND @CustomerGroup = 'CORP' AND @SM_ACCT_PROD_CAT in ('CA', 'CD') AND @SD_TRAN_CDE_CAT in ('587', '950') AND @SD_MSG_SRC in ('ATM', 'BRN')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Cash Transactions High Risk Individual]]></NAME>
+		<DESCRIPTION><![CDATA[Any single or cumulative cash deposit transactions against High Risk individual accounts for more than (SR 99,999) in 7 Days]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CASH_DEPOSITS WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >100000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>0 AND @SM_ACCT_BHVR_SCORE IN ('HIR', 'PEP', 'REP') AND @CustomerGroup = 'INDIV' AND @SM_ACCT_PROD_CAT in ('CA', 'CD', 'DC', 'DD', 'DE', 'SR', 'ST') AND @SD_TRAN_CDE_CAT in ('587', '950') AND @SD_MSG_SRC in ('ATM', 'BRN')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Cash Transactions Individual]]></NAME>
+		<DESCRIPTION><![CDATA[Any single or cumulative cash deposit transactions against individual accounts for more than (SR 49,999) in 7 Days]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CASH_DEPOSITS WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >50000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>0 AND @SM_ACCT_BHVR_SCORE NOT IN ('HIR', 'PEP', 'REP') AND @CustomerGroup = 'INDIV' AND @SM_ACCT_PROD_CAT in ('CA', 'CD', 'DC', 'DD', 'DE', 'SR', 'ST') AND @SD_TRAN_CDE_CAT in ('587', '950') AND @SD_MSG_SRC in ('ATM', 'BRN')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Charity Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[Any transactions for Charities accounts. Cuts sector code (VF) will be used as basis]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@SM_ACCT_PROD_CAT='VF' AND @CustomerGroup in ('CORP', 'SOLPR')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Checks deposit for Corporate Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[Check deposit transactions more than (SR 499,999) for corporate accounts. All type of Checks will be used as basis for all accounts.]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'CORP' AND @MD_TRAN_AMT1 >= 500000 AND @SD_TRAN_CDE_CAT in ('515', '516', '519', '585')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Checks Deposit for Individual Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[Check deposit transactions more than (SR 49,999) for individual accounts. All type of Checks will be used as basis for all accounts ]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'INDIV' AND @MD_TRAN_AMT1 >= 50000 AND @SD_TRAN_CDE_CAT in ('515', '516', '519', '585')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Checks Deposit for Sole Proprietor Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[Check deposit transactions more than (SR 199,999) for sole proprietor accounts. All type of Checks will be used as basis for all accounts]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'SOLPR' AND @MD_TRAN_AMT1 >= 200000 AND @SD_TRAN_CDE_CAT in ('515', '516', '519', '585')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[CORP/SOLPR accounts, HIR PEP and REP]]></NAME>
+		<DESCRIPTION><![CDATA[More than (200,000 SR) total deposits /credit transaction for (HIR) high risk costumers in last 7 days. The Risk Rating Code (source DW) (HIR) will be used as basis]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CREDITS_SWSR WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >=200000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup in ('CORP', 'SOLPR') AND @SM_ACCT_BHVR_SCORE IN ('HIR', 'PEP', 'REP') AND @SD_CR_DB_IND = 'C' AND @MD_TRAN_AMT1>0 AND @SD_TRAN_CDE_CAT in ('153', '156', '656', '653')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Credit Card Load Transactions]]></NAME>
+		<DESCRIPTION><![CDATA[Payment transactions for credit card in excess of the credit limit in last 30 days]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT MM_ACCT_OVERDRFT FROM ACCOUNT_MASTER WHERE SM_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM) < 2 * (SELECT SUM(TXNS_AMOUNT) FROM EP_CREDIT_REFILL WHERE CYCLE_START_DATE>=DATEADD(DAY, -30, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'INDIV' AND @SD_TRAN_CDE_CAT = '036']]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Donation Trigger Transactions]]></NAME>
+		<DESCRIPTION><![CDATA[More than 10 Credit Transactions amounted less than SR 500 on individual accounts over a period of time (5 days)]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_COUNT) FROM EP_CREDITS_SMALL WHERE CYCLE_START_DATE>=DATEADD(DAY, -5, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT COUNT(1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >=10]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'INDIV' AND @MD_TRAN_AMT1<500 AND @SD_TRAN_CDE_CAT in ('153', '520', '156', '557', '505', '585', '510', '587', '515', '653', '516', '656', '519', '950')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Early Loan Settlement  for INDIV Loan Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[To identify loan accounts that is settled well before the actual Maturity Date. Specific to personal loan accounts.]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[LEN(@SM_ACCT_PROD_CAT)=3 AND @CustomerGroup = 'INDIV' AND @SD_CR_DB_IND = 'C' AND @MD_TRAN_AMT1=@MM_ACCT_AVAIL_BAL AND @DM_USER_DOB>DATEADD(MONTH, 6, @DD_DATE)]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Embassies]]></NAME>
+		<DESCRIPTION><![CDATA[Any transactions for Embassies]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@SD_PRI_ACCT_NUM = '0101114843001']]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Hajj Missions]]></NAME>
+		<DESCRIPTION><![CDATA[Any transactions for Hajj Missions accounts]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@SD_PRI_ACCT_NUM = '0221265350001' OR @SD_PRI_ACCT_NUM = '0251341122001']]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Incoming  Swift For  CORP /  SOLPR from High RIsk]]></NAME>
+		<DESCRIPTION><![CDATA[Any single incoming (Swift) transfer from any high risk country to any SAIB accounts. Based on the high risk countries list ]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>=200000 AND @CustomerGroup in ('CORP', 'SOLPR') AND @SM_ACCT_PROD_CAT in ('CA', 'CD', 'DC', 'DD') AND @SD_TRAN_CDE_CAT in ('153', '653') AND @AML_HIGH_RISK_CNTRY_ACCT='1']]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Incoming  Swift For  INDIV From High Risk Cntry]]></NAME>
+		<DESCRIPTION><![CDATA[Any single incoming (Swift) transfer from any high risk country to any SAIB accounts. Based on the high risk countries list]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>=200000 AND @CustomerGroup = 'INDIV' AND @SM_ACCT_PROD_CAT in ('CA', 'CD', 'DC', 'DD', 'DE', 'SR', 'ST') AND @SD_TRAN_CDE_CAT in ('153', '653') AND @AML_HIGH_RISK_CNTRY_ACCT='1']]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Individual accounts, HIR PEP and REP]]></NAME>
+		<DESCRIPTION><![CDATA[More than (50,000 SR) total deposits /credit transaction for (HIR) high risk costumers in last 7 days. The Risk Rating Code (source DW) (HIR) will be used as basis]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CREDITS_SWSR WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >=50000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'INDIV' AND @SM_ACCT_BHVR_SCORE IN ('HIR', 'PEP', 'REP') AND @SD_CR_DB_IND = 'C' AND @MD_TRAN_AMT1>0 AND @SD_TRAN_CDE_CAT in ('153', '156', '656', '653')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Joint Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[Sum of credit transactions is more than (SR 49,999) for joint account. The Customer type will be used as basis to determine if account is for a joint account]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_CREDITS_ALL WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >=50000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>=0 AND @CustomerType = 'EJ' AND @SD_CR_DB_IND = 'C' AND @SD_TRAN_CDE_CAT in ('153', '520', '156', '557', '505', '585', '510', '587', '515', '653', '516', '656', '519', '950') AND @SD_MSG_SRC in ('ATM', 'BRN')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Multiple credit transactions for  individual]]></NAME>
+		<DESCRIPTION><![CDATA[Any credit transactions in more than one branch in the same day in the same account This is for Individual accounts Based on branches code. The Customer type will be used as basis to determine if account is for an individual customer]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[EXISTS (SELECT TOP 1 1 FROM SHORTWINDOW WHERE @SD_PRI_ACCT_NUM=SD_PRI_ACCT_NUM AND DD_DATE>DATEADD(DAY, -1, @DD_DATE) AND SD_RT_MODEL_1_ID IS NOT NULL AND SD_RT_MODEL_1_ID <> @SD_RT_MODEL_1_ID)]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'INDIV' AND @SD_CR_DB_IND = 'C' AND @SD_TRAN_CDE_CAT in ('153', '520', '156', '557', '505', '585', '510', '587', '515', '653', '516', '656', '519', '950') AND @SD_RT_MODEL_1_ID IS NOT NULL]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Outgoing  Swift  ( Non-Saudi ) Indiv to High Risk]]></NAME>
+		<DESCRIPTION><![CDATA[Any single outgoing transfers (Swift) to high risk countries more than   (SR 4,999) to one of high risk countries from Non- Saudi individual accounts. Based on the high risk countries list]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>=5000 AND @CustomerGroup = 'INDIV' AND @SD_TRAN_CDE_CAT in ('287', '787') AND @AML_HIGH_RISK_CNTRY_ACCT ='1' AND @SM_USER_RESIDENT_IND<>'S' ]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Outgoing  Swift  (Saudi) Indiv to High Risk Cntry]]></NAME>
+		<DESCRIPTION><![CDATA[Any single outgoing transfers (Swift) to one of high risk countries more than SR 37, 500 (10,000$), From Saudi individual accounts]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[]]>
+		</SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>=37500 AND @CustomerGroup = 'INDIV' AND @SD_TRAN_CDE_CAT in ('287', '787') AND  @AML_HIGH_RISK_CNTRY_ACCT ='1' AND @SM_USER_RESIDENT_IND='S']]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Outgoing Swift  Transfer For  Corporate /  SOLPR]]></NAME>
+		<DESCRIPTION><![CDATA[One or more outgoing transfer (Swift) (including Internet transfer) to one beneficiary exceed (SR 500,000) for last seven days. Rule to check  corporate /  sole proprietor  accounts having  One or more outgoing transfers with cumulative amount greater than or equal to 500,000 SR debited to the same beneficiary within a 7 day period]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_SWIFT_TO WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >500000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>0 AND @CustomerGroup in ('CORP', 'SOLPR') AND @SD_TRAN_CDE_CAT in ('287', '787')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Outgoing Swift  Transfer For  Individual Accounts]]></NAME>
+		<DESCRIPTION><![CDATA[ One or more outgoing transfer (Swift) (including Internet transfer) to one beneficiary exceed (SR 49,999) for last seven days. Rule to check  individual accounts having  One or more outgoing transfers with cumulative amount greater than or equal to 49,999 SR debited to the same beneficiary within a 7 day period]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_SWIFT_TO WHERE CYCLE_START_DATE>=DATEADD(DAY, -7, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >50000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@MD_TRAN_AMT1>0 AND @CustomerGroup = 'INDIV' AND @SD_TRAN_CDE_CAT in ('287', '787')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+	<Rules>
+		<NAME><![CDATA[Travel Card & Shopping Card  Transactions]]></NAME>
+		<DESCRIPTION><![CDATA[Cumulative Credit transfer from current account to Travel & Shopping more than 10,000 SR in last 30 days]]></DESCRIPTION>
+		<RULEDEFID>0</RULEDEFID>
+		<SUBTYPEID>0</SUBTYPEID>
+		<ACTION_LEVEL>7</ACTION_LEVEL>
+		<SQLSYNTAX><![CDATA[(SELECT SUM(TXNS_AMOUNT) FROM EP_SHOPTRVL_CARD_LOAD WHERE CYCLE_START_DATE>=DATEADD(DAY, -30, CAST(GETDATE() AS DATE))  AND CYCLE_START_DATE<CAST(GETDATE() AS DATE)  AND PRIMARY_FIELD=@SD_PRI_ACCT_NUM) + (SELECT SUM(MD_TRAN_AMT1) FROM SHORTWINDOW WHERE SD_PRI_ACCT_NUM=@SD_PRI_ACCT_NUM  AND DD_DATE>CAST(GETDATE() AS DATE)) >=10000]]></SQLSYNTAX>
+		<ENTRANCE_CRITERIA><![CDATA[@CustomerGroup = 'INDIV' AND @SM_ACCT_PROD_CAT='CA' AND @MD_TRAN_AMT1>0 AND @SD_TRAN_CDE_CAT in ('139', '639', '098', '598')]]></ENTRANCE_CRITERIA>
+		<DISPOSITIONTYPE></DISPOSITIONTYPE>
+	</Rules>
+</AggregatesAndRules>
