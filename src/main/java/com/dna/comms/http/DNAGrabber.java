@@ -72,7 +72,7 @@ public class DNAGrabber {
 		result.setTitleUnicode(title.getTitleUnicode());
 
 		try {
-			File inputFile = new File("E:/USR/DNA & Imunitati/Comunicate DNA/comm_" + title.getId() + ".html");
+			File inputFile = new File("./project_files/Comunicate DNA/comm_" + title.getId() + ".html");
 			String htmlContent = StrangeUtils.getFileContent(inputFile);
 
 			htmlContent = cleanHTML(htmlContent);
@@ -195,7 +195,7 @@ public class DNAGrabber {
 		result.setReleaseDate(title.getDate());
 
 		try {
-			File inputFile = new File("E:/USR/DNA & Imunitati/Condamnari DNA/condamnari_" + title.getId() + ".html");
+			File inputFile = new File("./project_files/Condamnari DNA/condamnari_" + title.getId() + ".html");
 			String htmlContent = StrangeUtils.getFileContent(inputFile);
 			htmlContent = StrangeUtils.deAccent(cleanHTML(htmlContent));
 
@@ -459,17 +459,17 @@ public class DNAGrabber {
 		return results;
 	}
 
-	private String getCompanyName(String text, String nameStart, String nameEnd) {
-		int startIdx = text.indexOf(nameStart);
-		if (startIdx < 0)
-			return text;
-
-		int endIdx = text.indexOf(nameEnd);
-		if (endIdx < 0)
-			return text;
-
-		return text.substring(startIdx, endIdx + nameEnd.length());
-	}
+	// private String getCompanyName(String text, String nameStart, String nameEnd) {
+	// int startIdx = text.indexOf(nameStart);
+	// if (startIdx < 0)
+	// return text;
+	//
+	// int endIdx = text.indexOf(nameEnd);
+	// if (endIdx < 0)
+	// return text;
+	//
+	// return text.substring(startIdx, endIdx + nameEnd.length());
+	// }
 
 	private void addSentences(List<ProsecutionRulingSentence> sentences, String quantum, String originalText, String string,
 			RulingConvictLink result, List<String> names) {

@@ -42,7 +42,8 @@ public class CDEPPoliticalProfileGrabber {
 		LEGISLATIVE_SESSIONS_STARTS.put("2000-2004", "noi 2000");
 		LEGISLATIVE_SESSIONS_STARTS.put("2004-2008", "noi 2004");
 		LEGISLATIVE_SESSIONS_STARTS.put("2008-2012", "noi 2008");
-		LEGISLATIVE_SESSIONS_STARTS.put("2012-prezent", "dec 2012");
+		LEGISLATIVE_SESSIONS_STARTS.put("2012-2016", "dec 2012");
+		LEGISLATIVE_SESSIONS_STARTS.put("2016-prezent", "dec 2016");
 
 		LEGISLATIVE_SESSIONS_ENDS.put("1990-1992", "sep 1992");
 		LEGISLATIVE_SESSIONS_ENDS.put("1992-1996", "noi 1996");
@@ -50,7 +51,8 @@ public class CDEPPoliticalProfileGrabber {
 		LEGISLATIVE_SESSIONS_ENDS.put("2000-2004", "noi 2004");
 		LEGISLATIVE_SESSIONS_ENDS.put("2004-2008", "noi 2008");
 		LEGISLATIVE_SESSIONS_ENDS.put("2008-2012", "dec 2012");
-		LEGISLATIVE_SESSIONS_ENDS.put("2012-prezent", "dec 2016");
+		LEGISLATIVE_SESSIONS_ENDS.put("2012-2016", "dec 2016");
+		LEGISLATIVE_SESSIONS_ENDS.put("2016-prezent", "dec 2020");
 	}
 
 	public Politician getPolitician(String inputFile) throws DNACommException {
@@ -144,7 +146,7 @@ public class CDEPPoliticalProfileGrabber {
 
 			return result;
 		} catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException | ParseException e) {
-			throw new DNACommException("", e);
+			throw new DNACommException(e.getMessage(), e);
 		}
 	}
 
@@ -198,6 +200,8 @@ public class CDEPPoliticalProfileGrabber {
 		for (int i = 0; i < rowElements.getLength(); i++) {
 			Element rowEl = (Element) rowElements.item(i);
 			String rest = rowEl.getTextContent().trim();
+			if (rest.startsWith("cand") && rest.contains("se transforma in"))
+				continue;
 
 			NodeList nameTD = (NodeList) xPath.evaluate("./td[2]/table/tbody/tr/td[1]", rowEl, XPathConstants.NODESET);
 			if (nameTD.item(0) == null) {
@@ -234,6 +238,8 @@ public class CDEPPoliticalProfileGrabber {
 			if (!trEl.hasChildNodes())
 				continue;
 			String itemName = trEl.getElementsByTagName("td").item(0).getTextContent();
+			if (itemName.isEmpty())
+				continue;
 
 			NodeList mainNrEl = (NodeList) xPath.evaluate("./td[2]/a/b", trEl, XPathConstants.NODESET);
 			int nr = Integer.parseInt(mainNrEl.item(0).getTextContent().trim());
@@ -258,6 +264,8 @@ public class CDEPPoliticalProfileGrabber {
 				mandate.setQuestionings(nr);
 			} else if (itemName.contains("Motiuni")) {
 				mandate.setMotions(nr);
+			} else if (itemName.contains("Membru in")) {
+				// just skip
 			} else
 				System.err.println("Unmatched activity: " + itemName);
 		}

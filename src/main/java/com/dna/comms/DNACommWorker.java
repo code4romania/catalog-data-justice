@@ -45,14 +45,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DNACommWorker {
 	public static void main(String[] args) {
 		try {
-			buildRulingsJSON();
+			 buildRulingsJSON();
+
+			// fetchPoliticianFiles("Senat", "2012");
+			// fetchPoliticianFiles("Senat", "2016");
+
+			buildPoliticiansJSON();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static void exportPoliticiansToExcel() throws IOException, JsonParseException, JsonMappingException, FileNotFoundException {
-		String json = StrangeUtils.getFileContent(new File("e:/USR/DNA & Imunitati/Parlament/parlamentari.json"));
+		String json = StrangeUtils.getFileContent(new File("./project_files/Parlament/parlamentari.json"));
 		List<Politician> politicians = new ObjectMapper().readValue(json, new TypeReference<List<Politician>>() {
 		});
 
@@ -132,7 +137,7 @@ public class DNACommWorker {
 			}
 		}
 
-		book.write(new FileOutputStream("e:/USR/DNA & Imunitati/Parlament/parlamentari.xlsx"));
+		book.write(new FileOutputStream("./project_files/Parlament/parlamentari.xlsx"));
 		book.close();
 	}
 
@@ -153,7 +158,7 @@ public class DNACommWorker {
 	}
 
 	public static void buildPoliticiansJSON() throws DNACommException, IOException, JsonGenerationException, JsonMappingException {
-		String folder = "e:/USR/DNA & Imunitati/Parlament/";
+		String folder = "./project_files/Parlament/";
 		CDEPPoliticalProfileGrabber grabber = new CDEPPoliticalProfileGrabber();
 		File inputFolder = new File(folder);
 
@@ -217,18 +222,21 @@ public class DNACommWorker {
 			}
 		}
 
-		PrintWriter pw = new PrintWriter(new FileWriter("e:/USR/DNA & Imunitati/Parlament/parlamentari.json"));
+		PrintWriter pw = new PrintWriter(new FileWriter("./project_files/Parlament/parlamentari.json"));
 		DNACommsJSONCodec jsonCodec = new DNACommsJSONCodec();
 		pw.write(jsonCodec.encodeAny(StrangeUtils.politiciansByName.values(), true));
 		pw.close();
 	}
 
-	public static void fetchPoliticianFiles(String type) throws IOException, FileNotFoundException, MalformedURLException {
-		String folder = "e:/USR/DNA & Imunitati/Parlament/";
+	public static void fetchPoliticianFiles(String type, String filter) throws IOException, FileNotFoundException, MalformedURLException {
+		String folder = "./project_files/Parlament/";
 		// read the excel spreadsheet
 		XSSFWorkbook book = new XSSFWorkbook(new FileInputStream(folder + type + ".xlsx"));
 		for (int sheetIndex = 0; sheetIndex < book.getNumberOfSheets(); sheetIndex++) {
 			XSSFSheet sheet = book.getSheetAt(sheetIndex);
+
+			if (!sheet.getSheetName().contains(filter))
+				continue;
 
 			String currentFolder = folder + type + " " + sheet.getSheetName();
 			new File(currentFolder).mkdir();
@@ -258,7 +266,7 @@ public class DNACommWorker {
 		// read titles from HAR archive
 		List<ProsecutionRulingTitle> titles;
 		DNACommsJSONCodec jsonCodec = new DNACommsJSONCodec();
-		titles = jsonCodec.parseDNARulingTitlesFromHAR(new File("e:/USR/DNA & Imunitati/www.pna_rulings.ro.har"));
+		titles = jsonCodec.parseDNARulingTitlesFromHAR(new File("./project_files/www.pna_rulings.ro.har"));
 
 		// sort them by date
 		titles.sort(new Comparator<ProsecutionRulingTitle>() {
@@ -268,7 +276,7 @@ public class DNACommWorker {
 			}
 		});
 		// write them to a file, as JSONs
-		PrintWriter jsonTitles = new PrintWriter(new BufferedWriter(new FileWriter("e:/USR/DNA & Imunitati/jsonRulingTitles.txt")));
+		PrintWriter jsonTitles = new PrintWriter(new BufferedWriter(new FileWriter("./project_files/jsonRulingTitles.txt")));
 		// PrintStream jsonTitles = System.out;
 		jsonTitles.println(jsonCodec.encodeAny(titles, true));
 		jsonTitles.close();
@@ -280,7 +288,7 @@ public class DNACommWorker {
 		// read titles from HAR archive
 		List<ProsecutionCommTitle> titles;
 		DNACommsJSONCodec jsonCodec = new DNACommsJSONCodec();
-		titles = jsonCodec.parseDNACommTitlesFromHAR(new File("e:/USR/DNA & Imunitati/www.pna_comm.ro.har"));
+		titles = jsonCodec.parseDNACommTitlesFromHAR(new File("./project_files/www.pna_comm.ro.har"));
 
 		// sort them by date
 		titles.sort(new Comparator<ProsecutionCommTitle>() {
@@ -299,7 +307,7 @@ public class DNACommWorker {
 	public static void buildRulingsJSON() throws DNACommException, IOException {
 		List<ProsecutionRulingTitle> titles;
 		DNACommsJSONCodec jsonCodec = new DNACommsJSONCodec();
-		titles = jsonCodec.parseDNARulingTitlesFromHAR(new File("e:/USR/DNA & Imunitati/www.pna_rulings.ro.har"));
+		titles = jsonCodec.parseDNARulingTitlesFromHAR(new File("./project_files/www.pna_rulings.ro.har"));
 
 		List<ProsecutionRuling> comms = new ArrayList<>();
 		DNAGrabber grabber = new DNAGrabber();
@@ -311,7 +319,7 @@ public class DNACommWorker {
 			// return;
 		}
 
-		PrintWriter commWriter = new PrintWriter(new BufferedWriter(new FileWriter("e:/USR/DNA & Imunitati/Output/rulings_raw.json")));
+		PrintWriter commWriter = new PrintWriter(new BufferedWriter(new FileWriter("./project_files/Output/rulings_raw.json")));
 		commWriter.println(jsonCodec.encodeAny(comms, true));
 		commWriter.close();
 	}
@@ -319,13 +327,13 @@ public class DNACommWorker {
 	public static void buildCommsJSON() throws DNACommException, IOException {
 		List<ProsecutionCommTitle> titles;
 		DNACommsJSONCodec jsonCodec = new DNACommsJSONCodec();
-		titles = jsonCodec.parseDNACommTitlesFromHAR(new File("e:/USR/DNA & Imunitati/www.pna_comm.ro.har"));
+		titles = jsonCodec.parseDNACommTitlesFromHAR(new File("./project_files/www.pna_comm.ro.har"));
 
 		List<ProsecutionComm> comms = new ArrayList<>();
 		DNAGrabber grabber = new DNAGrabber();
 		for (ProsecutionCommTitle title : titles)
 			comms.add(grabber.getCommByTitle(title));
-		PrintWriter commWriter = new PrintWriter(new BufferedWriter(new FileWriter("e:/USR/DNA & Imunitati/Output/comms_raw.json")));
+		PrintWriter commWriter = new PrintWriter(new BufferedWriter(new FileWriter("./project_files/Output/comms_raw.json")));
 		commWriter.println(jsonCodec.encodeAny(comms, true));
 		commWriter.close();
 	}
@@ -334,7 +342,7 @@ public class DNACommWorker {
 		List<ProsecutionRulingTitle> titles = fetchRulingTitles();
 
 		for (ProsecutionRulingTitle title : titles) {
-			String outputFile = "e:/USR/DNA & Imunitati/Condamnari DNA/condamnari_" + title.getId() + ".html";
+			String outputFile = "./project_files/Condamnari DNA/condamnari_" + title.getId() + ".html";
 			System.out.println("Proccessing " + outputFile);
 
 			CleanerProperties props = new CleanerProperties();
