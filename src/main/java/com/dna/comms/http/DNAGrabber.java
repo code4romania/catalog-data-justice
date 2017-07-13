@@ -1,18 +1,14 @@
 package com.dna.comms.http;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.dna.comms.DNACommException;
+import com.dna.comms.StrangeUtils;
+import com.dna.comms.entities.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,25 +17,15 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.dna.comms.DNACommException;
-import com.dna.comms.StrangeUtils;
-import com.dna.comms.entities.CommSuspectLink;
-import com.dna.comms.entities.ConvictedPerson;
-import com.dna.comms.entities.ProsecutionComm;
-import com.dna.comms.entities.ProsecutionCommTitle;
-import com.dna.comms.entities.ProsecutionRuling;
-import com.dna.comms.entities.ProsecutionRulingSentence;
-import com.dna.comms.entities.ProsecutionRulingTitle;
-import com.dna.comms.entities.RulingConvictLink;
-import com.dna.comms.entities.SuspectPerson;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DNAGrabber {
 	private final String MONTHS_REGEX = "(ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie)";
@@ -305,8 +291,9 @@ public class DNAGrabber {
 		List<ProsecutionRulingSentence> sentences = new ArrayList<>();
 		String originalText = node.getTextContent().replace("\\s+", " ").replace(" ,", ",");
 		String text = sanitizeTextToNumbers(originalText);
+        String textlc = text.toLowerCase();
 
-		if (text.toLowerCase().contains("acordul de recunoastere a vinovatiei"))
+        if (textlc.contains("acordul de recunoastere a vinovatiei"))
 			return null;
 		if (text.replace(":", "").trim().toLowerCase().equals("Condamna pe inculpatii"))
 			return null;
@@ -314,13 +301,13 @@ public class DNAGrabber {
 		List<String> names = extractNames(node);
 		System.err.println(names + ": " + originalText);
 
-		if (text.toLowerCase().contains("interzi") && text.toLowerCase().contains("drept")) {
+		if (textlc.contains("interzi") && textlc.contains("drept")) {
 			// System.err.println("Interzicearea unor drepturi: " + text);
-			String subText = text.toLowerCase().substring(text.indexOf("interzi"));
+			String subText = textlc.substring(textlc.indexOf("interzi"));
 			addSentences(sentences, findFirstTime(subText), originalText, "Interzicerea unor drepturi", result, names);
 		}
 
-		if (text.toLowerCase().contains("afis") && text.toLowerCase().contains("hotara")) {
+		if (textlc.contains("afis") && textlc.contains("hotara")) {
 			// System.err.println("Afisarea hotararii: " + text);
 			addSentences(sentences, "n/a", originalText, "Afisarea hotararii", result, names);
 		}
@@ -549,12 +536,12 @@ public class DNAGrabber {
 	}
 
 	private String cleanHTML(String htmlContent) {
-		htmlContent = htmlContent.replace("&icirc;", "î");
-		htmlContent = htmlContent.replace("&acirc;", "â");
-		htmlContent = htmlContent.replace("&Icirc;", "Î");
-		htmlContent = htmlContent.replace("&Acirc;", "Â");
+		htmlContent = htmlContent.replace("&icirc;", "Ã®");
+		htmlContent = htmlContent.replace("&acirc;", "Ã¢");
+		htmlContent = htmlContent.replace("&Icirc;", "ÃŽ");
+		htmlContent = htmlContent.replace("&Acirc;", "Ã‚");
 		htmlContent = htmlContent.replace("&nbsp;", " ");
-		htmlContent = htmlContent.replace("&deg;", "°");
+		htmlContent = htmlContent.replace("&deg;", "Â°");
 		htmlContent = htmlContent.replace("&ouml;", "o");
 		htmlContent = htmlContent.replace("&Ouml;", "O");
 		htmlContent = htmlContent.replace("&oacute;", "o");
@@ -566,8 +553,8 @@ public class DNAGrabber {
 		htmlContent = htmlContent.replace("&Uuml;", "U");
 		htmlContent = htmlContent.replace("&uuml;", "u");
 		htmlContent = htmlContent.replace("&atilde;", "a");
-		htmlContent = htmlContent.replace("&laquo;", "«");
-		htmlContent = htmlContent.replace("&raquo;", "»");
+		htmlContent = htmlContent.replace("&laquo;", "Â«");
+		htmlContent = htmlContent.replace("&raquo;", "Â»");
 		htmlContent = htmlContent.replace("&ordm;", "");
 		return htmlContent;
 	}
